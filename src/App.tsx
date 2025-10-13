@@ -13,7 +13,7 @@ export default function App() {
     });
   }
   return (
-    <div className="flex flex-col justify-center min-h-screen items-center py-10 gap-3">
+    <div className="flex flex-col min-h-screen items-center py-10 gap-3">
       <PostInput addInput={addPost}/>
 
       {posts.map((content) => {
