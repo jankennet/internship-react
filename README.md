@@ -7,10 +7,3 @@ This repository contains all materials for my internship lesson on **React**.
 
 ---
 
-### 🚀 Setup
-
-To switch to the latest branch and get everything ready, simply run on your terminal:
-
-```bash
-setup.bat
-```
