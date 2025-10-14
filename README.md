@@ -7,3 +7,20 @@ This repository contains all materials for my internship lesson on **React**.
 
 ---
 
+<<<<<<< HEAD
+=======
+### 🚀 Setup
+
+To switch to the branch with completed code and get everything ready, simply run on your terminal:
+
+```bash
+setup.bat
+```
+
+or 
+
+```bash
+git fetch --all
+git switch -t origin/worked
+```
+>>>>>>> 0b3fed6f6397f161d5307b20ff47740ae0633f30
