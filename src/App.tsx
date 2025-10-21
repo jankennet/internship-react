@@ -1,58 +1,60 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "./components/Navbar";
-import { type Profile } from "./components/types";
 import Profiles from "./components/Profiles";
+import type { Profile } from "./components/types";
+
+const API = "https://jsonplaceholder.typicode.com/users";
+const Delay = 1;
 
 export default function App() {
-  const [profiles, setProfileData] = useState<Profile[]>();
-  const [filteredProfiles, setFilteredProfiles] = useState<Profile[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [filterText, setFilterText] = useState("");
 
-  let API = "https://jsonplaceholder.typicode.com/users"
-
- function fetchProfiles() {
-    fetch(API)
-      .then((response) => response.json())
-      .then((data) => {
-        setProfileData(data);
-        setFilteredProfiles(data); // show all by default
-      })
-      .catch((error) => setError(error))
-      .finally(() => setIsLoading(false));
+  // Fetch profiles using React Query
+  async function fetchProfiles() {
+    const res = await fetch(API);
+    await new Promise((resolve) => setTimeout(resolve, Delay * 1000)); // artificial delay
+    return res.json();
   }
 
-  function handleFetchFiltered() {
-    const query = searchQuery.toLowerCase();
+  const {
+    data: profiles,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<Profile[]>({
+    queryKey: ["users"],
+    queryFn: fetchProfiles,
+  });
 
-    if (!query.trim()) {
-      // show all if empty
-      setFilteredProfiles(profiles!);
-      return;
-    }
+  // Filter handler (called from Navbar)
+  function handleFilter(searchText: string) {
+    setFilterText(searchText);
+  }
 
-    const filtered = profiles!.filter(
+  function handleFetch() {
+    refetch(); // this re-fetches using React Query
+  }
+
+  if (isLoading) return <div className="text-center mt-5">Loading...</div>;
+  if (isError) return <div className="text-center mt-5">Error fetching profiles.</div>;
+
+  // Filter profiles (client-side)
+  const filteredProfiles =
+    profiles?.filter(
       (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.username.toLowerCase().includes(query) ||
-        p.email.toLowerCase().includes(query)
-    );
-
-    setFilteredProfiles(filtered);
-  }
-
-  useEffect(fetchProfiles, [])
+        p.name.toLowerCase().includes(filterText.trim().toLowerCase()) ||
+        p.username.toLowerCase().includes(filterText.trim().toLowerCase()) ||
+        p.email.toLowerCase().includes(filterText.trim().toLowerCase())
+    ) ?? [];
 
   return (
     <div className="flex flex-col justify-center mt-5">
-      <div>
-        <Navbar onFilter={(val)=>setSearchQuery(val)} onFetch={handleFetchFiltered} />
-          {isLoading && <div>Lodeng... </div>}
-        <div className="flex justify-center mt-5">
-          <Profiles profiles={filteredProfiles}/>
-        </div>
+      <Navbar onFilter={handleFilter} onFetch={handleFetch} />
+
+      <div className="flex justify-center mt-5">
+        <Profiles profiles={filteredProfiles} />
       </div>
     </div>
-  )
+  );
 }
